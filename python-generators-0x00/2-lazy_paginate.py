@@ -20,7 +20,8 @@ def connect_to_prodev():
         return None
 
 
-def paginate_users(connection, page_size, offset):
+def paginate_users(page_size, offset):
+    connection = connect_to_prodev()
     cursor = connection.cursor(dictionary=True)
     query = f"SELECT * FROM user_data LIMIT {page_size} OFFSET {offset};"
     cursor.execute(query)
