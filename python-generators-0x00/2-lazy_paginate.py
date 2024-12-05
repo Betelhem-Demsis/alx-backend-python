@@ -6,7 +6,6 @@ load_dotenv()
 
 env = os.environ
 
-
 def connect_to_prodev():
     try:
         connection = mysql.connector.connect(
@@ -22,7 +21,7 @@ def connect_to_prodev():
 
 
 def paginate_users(connection, page_size, offset):
-    cursor = connection.cursor(dictionary=True) 
+    cursor = connection.cursor(dictionary=True)
     query = f"SELECT * FROM user_data LIMIT {page_size} OFFSET {offset};"
     cursor.execute(query)
     rows = cursor.fetchall()
