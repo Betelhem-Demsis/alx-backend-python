@@ -1,5 +1,5 @@
 import sqlite3
-def DatabaseConnection():
+class DatabaseConnection():
     def __init__(self,ALX_prodev):
         self.ALX_prodev =ALX_prodev
         self.connection=None
