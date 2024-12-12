@@ -1,6 +1,7 @@
 import asyncio
 import aiosqlite
 
+
 async def async_fetch_users(ALX_prodev):
     async with aiosqlite.connect(ALX_prodev) as db:
         async with db.execute("SELECT * FROM users") as cursor:
@@ -8,7 +9,7 @@ async def async_fetch_users(ALX_prodev):
             print("All users:")
             for row in results:
                 print(row)
-
+    return 
 async def async_fetch_older_users(ALX_prodev):
     async with aiosqlite.connect(ALX_prodev) as db:
         async with db.execute("SELECT * FROM users WHERE age > ?", (40,)) as cursor:
@@ -16,10 +17,11 @@ async def async_fetch_older_users(ALX_prodev):
             print("Users older than 40:")
             for row in results:
                 print(row)
-
+    return  
 async def fetch_concurrently():
     database_name = "ALX_prodev"
 
+   
     async with aiosqlite.connect(database_name) as db:
         await db.execute("""
             CREATE TABLE IF NOT EXISTS users (
@@ -39,4 +41,5 @@ async def fetch_concurrently():
     )
 
 if __name__ == "__main__":
+ 
     asyncio.run(fetch_concurrently())
