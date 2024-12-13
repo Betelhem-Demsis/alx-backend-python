@@ -4,6 +4,7 @@ from unittest.mock import patch, Mock
 from parameterized import parameterized
 from utils import access_nested_map, get_json, memoize
 
+
 class TestAccessNestedMap(unittest.TestCase):
     """Unit tests for access_nested_map function."""
 
@@ -26,6 +27,7 @@ class TestAccessNestedMap(unittest.TestCase):
             access_nested_map(nested_map, path)
         self.assertEqual(str(cm.exception), str(path[-1]))
 
+
 class TestGetJson(unittest.TestCase):
     """Unit tests for get_json function."""
 
@@ -44,24 +46,30 @@ class TestGetJson(unittest.TestCase):
         mock_get.assert_called_once_with(test_url)
         self.assertEqual(result, test_payload)
 
+
 class TestMemoize(unittest.TestCase):
     """Unit tests for memoize decorator."""
 
     def test_memoize(self):
         """Test that memoize caches the result of a_property."""
         class TestClass:
+            """Test class to validate memoize behavior."""
+
             def a_method(self):
+                """A sample method that returns a constant value."""
                 return 42
 
             @memoize
             def a_property(self):
+                """A property to be memoized."""
                 return self.a_method()
 
         with patch.object(TestClass, "a_method", return_value=42) as mock_method:
             test_instance = TestClass()
-            self.assertEqual(test_instance.a_property, 42) 
-            self.assertEqual(test_instance.a_property, 42)  
+            self.assertEqual(test_instance.a_property, 42)
+            self.assertEqual(test_instance.a_property, 42)
             mock_method.assert_called_once()
+
 
 if __name__ == "__main__":
     unittest.main()
