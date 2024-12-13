@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 """
 Unit tests for the utility functions in the 'utils' module.
 
@@ -12,7 +12,6 @@ Each test case is designed to verify the correct behavior of the respective func
 import unittest
 from unittest.mock import patch, Mock
 from parameterized import parameterized
-import requests 
 from utils import access_nested_map, get_json, memoize
 
 
@@ -88,8 +87,8 @@ class TestMemoize(unittest.TestCase):
         with patch.object(TestClass, "a_method", return_value=42) as mock_method:
             test_instance = TestClass()
             self.assertEqual(test_instance.a_property, 42)
-            self.assertEqual(test_instance.a_property, 42)  
-            mock_method.assert_called_once()  
+            self.assertEqual(test_instance.a_property, 42)  # Second call should be cached
+            mock_method.assert_called_once()  # Ensure a_method was called once
 
 
 if __name__ == "__main__":

@@ -3,7 +3,8 @@ import unittest
 from unittest.mock import patch, PropertyMock
 from parameterized import parameterized, parameterized_class
 from client import GithubOrgClient
-from fixtures import TEST_PAYLOAD 
+from fixtures import TEST_PAYLOAD
+
 
 class TestGithubOrgClient(unittest.TestCase):
     """Unit tests for GithubOrgClient."""
@@ -53,12 +54,13 @@ class TestGithubOrgClient(unittest.TestCase):
         result = client.has_license(repo, license_key)
         self.assertEqual(result, expected)
 
+
 @parameterized_class([
     {
         "org_payload": TEST_PAYLOAD,
         "repos_payload": TEST_PAYLOAD,
-        "expected_repos":TEST_PAYLOAD,
-        "apache2_repos":TEST_PAYLOAD,
+        "expected_repos": TEST_PAYLOAD,
+        "apache2_repos": TEST_PAYLOAD,
     }
 ])
 class TestIntegrationGithubOrgClient(unittest.TestCase):
@@ -89,6 +91,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         self.assertEqual(
             client.public_repos(license_key="apache-2.0"), self.apache2_repos
         )
+
 
 if __name__ == "__main__":
     unittest.main()
