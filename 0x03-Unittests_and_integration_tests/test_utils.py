@@ -1,7 +1,18 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3 
+"""
+Unit tests for the utility functions in the 'utils' module.
+
+This file contains test cases for functions such as:
+- access_nested_map
+- get_json
+- memoize
+
+Each test case is designed to verify the correct behavior of the respective function.
+"""
 import unittest
 from unittest.mock import patch, Mock
 from parameterized import parameterized
+import requests 
 from utils import access_nested_map, get_json, memoize
 
 
@@ -25,7 +36,8 @@ class TestAccessNestedMap(unittest.TestCase):
         """Test access_nested_map raises KeyError with expected message."""
         with self.assertRaises(KeyError) as cm:
             access_nested_map(nested_map, path)
-        self.assertEqual(str(cm.exception), str(path[-1]))
+        # The exception message should match the last part of the path
+        self.assertEqual(str(cm.exception).strip("'"), str(path[-1]))
 
 
 class TestGetJson(unittest.TestCase):
@@ -38,12 +50,21 @@ class TestGetJson(unittest.TestCase):
     @patch("utils.requests.get")
     def test_get_json(self, name, test_url, test_payload, mock_get):
         """Test get_json returns expected output and calls requests.get once."""
+        
+        # Create a mock response object
         mock_response = Mock()
+        # Mock the .json() method to return the test_payload
         mock_response.json.return_value = test_payload
+        # Set the mock get function to return the mock_response
         mock_get.return_value = mock_response
 
+        # Call the get_json function
         result = get_json(test_url)
+
+        # Verify that the requests.get was called once with the test_url
         mock_get.assert_called_once_with(test_url)
+        
+        # Verify that the result of get_json matches the test_payload
         self.assertEqual(result, test_payload)
 
 
@@ -67,8 +88,8 @@ class TestMemoize(unittest.TestCase):
         with patch.object(TestClass, "a_method", return_value=42) as mock_method:
             test_instance = TestClass()
             self.assertEqual(test_instance.a_property, 42)
-            self.assertEqual(test_instance.a_property, 42)
-            mock_method.assert_called_once()
+            self.assertEqual(test_instance.a_property, 42)  
+            mock_method.assert_called_once()  
 
 
 if __name__ == "__main__":
