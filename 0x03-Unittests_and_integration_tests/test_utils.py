@@ -2,12 +2,6 @@
 """
 Unit tests for the utility functions in the 'utils' module.
 
-This file contains test cases for functions such as:
-- access_nested_map
-- get_json
-- memoize
-
-Each test case is designed to verify the correct behavior of the respective function.
 """
 
 from utils import (access_nested_map, get_json, memoize)
@@ -78,3 +72,4 @@ class TestGetJson(unittest.TestCase):
         self.assertEqual(get_json(test_url), test_payload)
         mock.assert_called_once()
         patcher.stop()
+        
