@@ -3,21 +3,19 @@ from django.db import models
 import uuid
 
 class User(AbstractUser):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     phone_number = models.CharField(max_length=15, null=True, blank=True)
     role = models.CharField(
         max_length=10,
         choices=[('guest', 'Guest'), ('host', 'Host'), ('admin', 'Admin')],
         default='guest',
     )
-
-   
     email = models.EmailField(unique=True)  
     first_name = models.CharField(max_length=150)  
     last_name = models.CharField(max_length=150) 
+    password=models.CharField(max_length=10)
     username = models.CharField(max_length=150, unique=True) 
 
-   
     groups = models.ManyToManyField(
         'auth.Group',
         related_name='custom_user_set',  
