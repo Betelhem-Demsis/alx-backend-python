@@ -1,19 +1,19 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import cache_page
-from django.contrib.auth.models import User
 from .models import Message
 
 @cache_page(60)
+@login_required
 def conversation_view(request, conversation_id):
     """
-    View for a single conversation, including all replies in a threaded format.
+    View for a single conversation, including all replies, optimized with select_related and prefetch_related.
     """
     conversation = (
-        Message.objects.filter(id=conversation_id)
-        .select_related('sender', 'receiver')  # Optimize sender and receiver fields
-        .prefetch_related('replies__sender')  # Prefetch replies and their senders
-        .first()  # Fetch the single conversation
+        Message.objects.filter(id=conversation_id, sender=request.user)  
+        .select_related('sender', 'receiver')  
+        .prefetch_related('replies__sender')  
+        .first()
     )
 
     if not conversation:
@@ -37,15 +37,6 @@ def conversation_view(request, conversation_id):
 
 
 @login_required
-def delete_user(request):
-    """
-    Allow logged-in users to delete their account.
-    """
-    user = request.user
-    user.delete()
-    return redirect('home')
-
-
 def unread_messages_view(request):
     """
     View to display all unread messages for the logged-in user.
@@ -54,7 +45,17 @@ def unread_messages_view(request):
     unread_messages = (
         Message.unread.unread_for_user(user)
         .only('id', 'subject', 'sender', 'received_at') 
-        .select_related('sender')  
+        .select_related('sender') 
     )
 
     return render(request, 'messaging/unread_messages.html', {'messages': unread_messages})
+
+
+@login_required
+def delete_user(request):
+    """
+    Allow logged-in users to delete their account.
+    """
+    user = request.user
+    user.delete()
+    return redirect('home')
