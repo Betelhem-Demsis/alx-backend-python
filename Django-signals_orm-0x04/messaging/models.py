@@ -12,6 +12,13 @@ class Message(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     parent_message = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='replies')
 
+    class UnreadMessagesManager(models.Manager):
+        def unread_for_user(self, user):
+            return self.filter(receiver=user, is_read=False)
+
+    unread = UnreadMessagesManager()
+
+
     def __str__(self):
         return f"Message from {self.sender} to {self.receiver} at {self.timestamp}"
 
