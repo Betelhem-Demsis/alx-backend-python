@@ -10,12 +10,15 @@ def conversation_view(request, conversation_id):
     conversation = Message.objects.prefetch_related('replies').filter(id=conversation_id)
     return render(request, 'conversation.html', {'conversation': conversation})
 
-def inbox_view(request):
-    unread_messages = Message.objects.get_unread(request.user)
-    return render(request, 'inbox.html', {'unread_messages': unread_messages})
 
 @login_required
 def delete_user(request):
     user = request.user
     user.delete()
     return redirect('home') 
+
+def unread_messages_view(request):
+    user = request.user
+    unread_messages = Message.unread.unread_for_user(user).only('id', 'subject', 'sender', 'received_at')\
+        .select_related('sender')  
+    return render(request, 'messaging/unread_messages.html', {'messages': unread_messages})
