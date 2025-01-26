@@ -1,0 +1,62 @@
+# Deployment for web app - Uses docker image and connect to the db
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: messaging-app-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: messaging-app
+  template:
+    metadata:
+      labels:
+        app: messaging-app
+    spec:
+      containers:
+        - name: django-messaging-app
+          image: django-messaging-app:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DB_HOST
+              value: "db"
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_NAME
+              value: "messaging_app"
+            - name: DB_USER
+              value: "root"
+            - name: DB_PASSWORD
+              value: "root"
+
+---
+# Service for web app - Expose app internally within cluster. Now pods in cluster can have access
+apiVersion: v1
+kind: Service
+metadata:
+  name: messaging-app-service
+spec:
+  selector:
+    app: messaging-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  clusterIP: None
+
+---
+# Service for db - Expose mysql db to app
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+spec:
+  type: ClusterIP
+  selector:
+    app: db
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
