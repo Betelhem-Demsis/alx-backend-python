@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# Check if kubectl is installed
+if ! command -v kubectl &> /dev/null
+then
+    echo "kubectl could not be found. Please install kubectl to proceed."
+    exit 1
+fi
+
+# Step 1: Scale the deployment to 3 replicas
+echo "Scaling the Django app deployment to 3 replicas..."
+kubectl scale deployment messaging-app-deployment --replicas=3
+if [ $? -ne 0 ]; then
+    echo "Failed to scale the deployment. Ensure the deployment name is correct."
+    exit 1
+fi
+
+# Step 2: Verify the scaling
+echo "Verifying the number of running pods..."
+kubectl get pods -l app=messaging-app-deployment
+if [ $? -ne 0 ]; then
+    echo "Failed to retrieve the pods."
+    exit 1
+fi
+
+# Step 3: Perform load testing using wrk
+echo "Performing load testing on the scaled application..."
+if ! command -v wrk &> /dev/null
+then
+    echo "wrk could not be found. Please install wrk to proceed with load testing."
+    exit 1
+fi
+
+# Since the app is accessible at http://127.0.0.1:44903
+wrk -t4 -c50 -d30s http://127.0.0.1:44903
+if [ $? -ne 0 ]; then
+    echo "Load testing failed. Ensure the app is accessible and 'wrk' is installed."
+    exit 1
+fi
+
+# Step 4: Monitor resource usage
+echo "Monitoring resource usage..."
+kubectl top pods
+if [ $? -ne 0 ]; then
+    echo "Failed to retrieve resource usage. Ensure metrics-server is correctly set up in the cluster."
+    exit 1
+fi
+
+echo "Script execution completed successfully!"
