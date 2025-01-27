@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Apply the updated blue deployment
+echo "Applying updated blue deployment..."
+kubectl apply -f blue_deployment.yaml
+if [ $? -ne 0 ]; then
+  echo "Failed to apply the updated deployment. Exiting."
+  exit 1
+fi
+
+# Trigger and monitor the rolling update
+echo "Monitoring the rolling update progress..."
+kubectl rollout status deployment/messaging-app-blue
+if [ $? -ne 0 ]; then
+  echo "Rolling update failed. Exiting."
+  exit 1
+fi
+
+# Test for downtime during the rolling update
+echo "Testing for downtime during the rolling update..."
+SERVICE_IP=$(kubectl get svc messaging-app-service -o jsonpath='{.spec.clusterIP}')
+if [ -z "$SERVICE_IP" ]; then
+  echo "Failed to retrieve the service IP. Exiting."
+  exit 1
+fi
+
+# Continuously send requests to the app
+echo "Sending requests to the app. Press Ctrl+C to stop..."
+while true; do
+  RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://$SERVICE_IP:8000)
+  if [ "$RESPONSE" -eq 200 ]; then
+    echo "App is responsive: HTTP $RESPONSE"
+  else
+    echo "App is unresponsive: HTTP $RESPONSE"
+  fi
+  sleep 1
+done
+
+# Verify the rolling update is complete by checking pods
+echo "Verifying the rolling update is complete..."
+kubectl get pods -l version=blue
+echo "Rolling update completed successfully."

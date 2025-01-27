@@ -17,7 +17,7 @@ services:
       - db
     env_file:
       - .env
-    command: ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
+    command: ["python3 manage.py runserver",python3", "manage.py", "runserver", "0.0.0.0:8000"]
 
   db:
     image: mysql:8.0

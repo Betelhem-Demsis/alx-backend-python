@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# Deploy the blue version
+echo "Deploying the blue version..."
+kubectl apply -f blue_deployment.yaml
+if [ $? -ne 0 ]; then
+  echo "Failed to deploy the blue version. Exiting."
+  exit 1
+fi
+
+# Deploy the green version
+echo "Deploying the green version..."
+kubectl apply -f green_deployment.yaml
+if [ $? -ne 0 ]; then
+  echo "Failed to deploy the green version. Exiting."
+  exit 1
+fi
+
+# Check logs for errors in the green version
+echo "Checking logs for the green version..."
+GREEN_POD=$(kubectl get pods -l version=green -o jsonpath='{.items[0].metadata.name}')
+kubectl logs $GREEN_POD | grep -i "error"
+if [ $? -eq 0 ]; then
+  echo "Errors found in the green version. Check the logs for details."
+  exit 1
+fi
+
+# Switch traffic to the green version
+echo "Switching traffic to the green version..."
+kubectl apply -f <(cat <<EOF
+apiVersion: v1
+kind: Service
+metadata:
+  name: messaging-app-service
+spec:
+  selector:
+    app: messaging-app
+    version: green
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+EOF
+)
+
+echo "Traffic has been switched to the green version. Verifying..."
+kubectl get svc messaging-app-service
+
+kubectl get pods -l version=green
+echo "Blue-green deployment completed successfully."

@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: messaging-app-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx # Specify the Ingress class
+  rules:
+    - host: localhost # Use localhost for local testing
+      http:
+        paths:
+          - path: /api/ # Route traffic to /api/ for the Django app
+            pathType: Prefix
+            backend:
+              service:
+                name: messaging-app-service # The name of your service
+                port:
+                  number: 8000 # The port exposed by your service

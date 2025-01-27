@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: messaging-app-green
+  labels:
+    app: messaging-app
+    version: green
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: messaging-app
+      version: green
+  template:
+    metadata:
+      labels:
+        app: messaging-app
+        version: green
+    spec:
+      containers:
+        - name: messaging-web
+          image: omlle/messaging_app-web
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: messaging-app-config
+                  key: DB_NAME
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: messaging-app-secrets
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: messaging-app-secrets
+                  key: DB_PASSWORD
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: messaging-app-config
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: messaging-app-config
+                  key: DB_PORT
+        - name: messaging-db
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: messaging-app-config
+                  key: DB_NAME
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: messaging-app-secrets
+                  key: DB_USER
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: messaging-app-secrets
+                  key: DB_PASSWORD
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: messaging-app-secrets
+                  key: MYSQL_ROOT_PASSWORD
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: messaging-app-config
+data:
+  DB_NAME: "messaging_app_doc"
+  DB_HOST: "db"
+  DB_PORT: "3306"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: messaging-app-secrets
+type: Opaque
+data:
+  DB_USER: bWVzc2FnaW5n
+  DB_PASSWORD: bWVzc2FnaW5nQDIwMjU=
+  MYSQL_ROOT_PASSWORD: T21vbGVAMTA4MDM=
